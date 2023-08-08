@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>PythonAnywhere</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="./utils.js"></script>
+</head>
+
+<body>
+    <div id="header" , style="margin-right: 3rem">
+        <div id="pyname" style="width: 80%; float: left">
+            <h1>Python REPL</h1>
+        </div>
+        <div id="pyclock" , style="width: 20%; float: left"></div>
+    </div>
+
+    <py-config>
+        packages = [
+            "bokeh",
+            "numpy",
+            "pandas",
+            "requests",
+            "pyodide-http",
+            "openpyxl"
+        ]
+        plugins = [
+            "https://pyscript.net/latest/plugins/python/py_tutor.py"
+        ]
+
+        [[fetch]]
+        files = ["./utils.py", "./antigravity.py"]
+    </py-config>
+
+    <py-script>
+        import os
+        import importlib
+        import numpy as np
+        import pandas as pd
+        import requests
+        import pyodide_http
+
+        pyodide_http.patch_all()
+        import asyncio
+        import utils
+        from js import downloadFile, downloadVenvFile, mountNativeFileSystem
+
+        start_dt = utils.dt.now()
+
+
+        async def _pyclock():
+            while True:
+                await asyncio.sleep(1)
+                output = f"running: {utils.running_time(start_dt)}"
+                Element("pyclock").element.innerHTML = f"<p>{output}</p>"
+
+
+        def save(filename):
+            downloadVenvFile(filename, os.path.split(filename)[1])
+
+
+        pyscript.run_until_complete(_pyclock())
+    </py-script>
+
+    <div style="margin-right: 3rem; clear: both">
+        <py-repl id="my-repl" auto-generate="true" src="./sample.py"></py-repl>
+        <div id="output" class="p-4"></div>
+    </div>
+</body>
+
+</html>
